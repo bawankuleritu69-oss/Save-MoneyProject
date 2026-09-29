@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sign Up - SaveMoney</title>
+<style>
+body{
+font-family:Arial;
+background:linear-gradient(135deg, #e0f2fe, #ffffff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+.box{
+background:white;
+padding:40px;
+width:400px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+text-align:center;
+}
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ddd;
+border-radius:8px;
+box-sizing:border-box;
+}
+button{
+background:#28c76f;
+color:white;
+padding:12px 30px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+width:100%;
+}
+button:hover{ background:#1e9c52; }
+p{margin-top:20px;}
+a{color:#1976d2;}
+</style>
+</head>
+<body>
+<div class="box">
+<h2 id="signupHeading">Create Account</h2>
+<form id="signupForm">
+<input type="text" id="fullName" placeholder="Full Name" required>
+<input type="email" id="email" placeholder="Email" required>
+<input type="password" id="password" placeholder="Password" required>
+<input type="text" id="about" placeholder="About (optional)">
+<button type="submit" id="signupBtn">Sign Up</button>
+</form>
+<p id="loginPrompt">Already have an account? <a href="login.html" id="loginLink">Login</a></p>
+</div>
+
+<script>
+    const translations = {
+        en: { heading: "Create Account", namePlace: "Full Name", emailPlace: "Email", pwdPlace: "Password", aboutPlace: "About (optional)", btn: "Sign Up", loginText: "Already have an account?", loginLink: "Login" },
+        hi: { heading: "खाता बनाएं", namePlace: "पूरा नाम", emailPlace: "ईमेल", pwdPlace: "पासवर्ड", aboutPlace: "अपने बारे में (वैकल्पिक)", btn: "साइन अप", loginText: "पहले से खाता है?", loginLink: "लॉगिन" },
+        mr: { heading: "खाते तयार करा", namePlace: "पूर्ण नाव", emailPlace: "ईमेल", pwdPlace: "पासवर्ड", aboutPlace: "तुमच्याबद्दल (पर्यायी)", btn: "साइन अप", loginText: "आधीच खाते आहे?", loginLink: "लॉगिन" }
+    };
+
+    const currentLang = localStorage.getItem("appLanguage") || "en";
+    const t = translations[currentLang] || translations.en;
+
+    document.getElementById("signupHeading").innerText = t.heading;
+    document.getElementById("fullName").placeholder = t.namePlace;
+    document.getElementById("email").placeholder = t.emailPlace;
+    document.getElementById("password").placeholder = t.pwdPlace;
+    document.getElementById("about").placeholder = t.aboutPlace;
+    document.getElementById("signupBtn").innerText = t.btn;
+    document.getElementById("loginPrompt").innerHTML = `${t.loginText} <a href="login.html" id="loginLink">${t.loginLink}</a>`;
+
+    const signupForm = document.getElementById('signupForm');
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById('fullName').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const about = document.getElementById('about').value;
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullName, email, password, about }),
+                credentials: 'same-origin'
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Registration successful! Please login.');
+                window.location.href = '/login.html';
+            } else {
+                alert(data.message || 'Registration failed');
+            }
+        } catch (err) {
+            alert('Server error');
+        }
+    });
+</script>
+</body>
+</html>

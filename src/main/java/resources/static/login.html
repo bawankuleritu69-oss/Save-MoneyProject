@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login - SaveMoney</title>
+<style>
+body{
+font-family:Arial;
+background:linear-gradient(135deg, #e0f2fe, #ffffff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+.box{
+background:white;
+padding:40px;
+width:380px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+text-align:center;
+}
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ddd;
+border-radius:8px;
+box-sizing:border-box;
+}
+button{
+background:#1976d2;
+color:white;
+padding:12px 30px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+width:100%;
+}
+button:hover{ background:#0b5aa7; }
+a{text-decoration:none; color:#2e7d32; }
+p{margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="box">
+<h2 id="loginHeading">Welcome Back</h2>
+<form id="loginForm" action="javascript:void(0);">
+<input type="email" id="email" placeholder="Email" required>
+<input type="password" id="password" placeholder="Password" required>
+<button type="submit" id="loginBtn">Login</button>
+</form>
+<p id="signupPrompt">Don't have an account? <a href="signup.html" id="signupLink">Sign Up</a></p>
+</div>
+
+<script>
+    const translations = {
+        en: { heading: "Welcome Back", emailPlace: "Email", pwdPlace: "Password", loginBtn: "Login", signupText: "Don't have an account?", signupLink: "Sign Up" },
+        hi: { heading: "वापस स्वागत है", emailPlace: "ईमेल", pwdPlace: "पासवर्ड", loginBtn: "लॉगिन", signupText: "खाता नहीं है?", signupLink: "साइन अप" },
+        mr: { heading: "परत स्वागत आहे", emailPlace: "ईमेल", pwdPlace: "पासवर्ड", loginBtn: "लॉगिन", signupText: "खाते नाही?", signupLink: "साइन अप" }
+    };
+
+    const currentLang = localStorage.getItem("appLanguage") || "en";
+    const t = translations[currentLang] || translations.en;
+
+    document.getElementById("loginHeading").innerText = t.heading;
+    document.getElementById("email").placeholder = t.emailPlace;
+    document.getElementById("password").placeholder = t.pwdPlace;
+    document.getElementById("loginBtn").innerText = t.loginBtn;
+    document.getElementById("signupPrompt").innerHTML = `${t.signupText} <a href="signup.html" id="signupLink">${t.signupLink}</a>`;
+
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'same-origin'
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.assign('/dashboard.html');
+            } else {
+                alert(data.message || 'Login failed');
+            }
+        } catch (err) {
+            alert('Server error');
+        }
+    });
+</script>
+</body>
+</html>

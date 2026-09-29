@@ -1,0 +1,59 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.1.5)
+
+2026-05-08T09:03:04.427+05:30  INFO 10152 --- [           main] c.savemoney.SavemoneyProjectApplication  : Starting SavemoneyProjectApplication v1.0.0 using Java 21.0.10 with PID 10152 (C:\Users\ss\eclipse\java-2025-12\eclipse\SavemoneyProject\target\SavemoneyProject-1.0.0.jar started by ss in C:\Users\ss\eclipse\java-2025-12\eclipse\SavemoneyProject)
+2026-05-08T09:03:04.433+05:30  INFO 10152 --- [           main] c.savemoney.SavemoneyProjectApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-05-08T09:03:06.481+05:30  INFO 10152 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-08T09:03:06.621+05:30  INFO 10152 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 116 ms. Found 2 JPA repository interfaces.
+2026-05-08T09:03:08.960+05:30  INFO 10152 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2026-05-08T09:03:08.984+05:30  INFO 10152 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-08T09:03:08.984+05:30  INFO 10152 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.15]
+2026-05-08T09:03:09.165+05:30  INFO 10152 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-08T09:03:09.169+05:30  INFO 10152 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 4600 ms
+2026-05-08T09:03:09.687+05:30  INFO 10152 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-08T09:03:09.913+05:30  INFO 10152 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.13.Final
+2026-05-08T09:03:09.920+05:30  INFO 10152 --- [           main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2026-05-08T09:03:10.823+05:30  INFO 10152 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-08T09:03:10.884+05:30  INFO 10152 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-08T09:03:11.321+05:30  INFO 10152 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@41a6d121
+2026-05-08T09:03:11.327+05:30  INFO 10152 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-08T09:03:13.861+05:30  INFO 10152 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-08T09:03:14.011+05:30  INFO 10152 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-08T09:03:14.973+05:30  INFO 10152 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-08T09:03:16.556+05:30  WARN 10152 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-08T09:03:16.664+05:30  WARN 10152 --- [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: ca29fa48-d976-4dd9-9f2f-57454d8d9946
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-05-08T09:03:17.471+05:30  INFO 10152 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@667a467f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@324e8baa, org.springframework.security.web.context.SecurityContextHolderFilter@61993d18, org.springframework.security.web.header.HeaderWriterFilter@596afb2f, org.springframework.security.web.authentication.logout.LogoutFilter@37986daf, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@46a388cc, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@16e07bae, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1488a861, org.springframework.security.web.access.ExceptionTranslationFilter@26865b57, org.springframework.security.web.access.intercept.AuthorizationFilter@710afd47]
+2026-05-08T09:03:17.794+05:30  WARN 10152 --- [           main] ion$DefaultTemplateResolverConfiguration : Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false)
+2026-05-08T09:03:18.045+05:30  WARN 10152 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-05-08T09:03:18.050+05:30  INFO 10152 --- [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-08T09:03:18.055+05:30  INFO 10152 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-08T09:03:18.080+05:30  INFO 10152 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-05-08T09:03:18.084+05:30  INFO 10152 --- [           main] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-05-08T09:03:18.117+05:30  INFO 10152 --- [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-05-08T09:03:18.197+05:30 ERROR 10152 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+

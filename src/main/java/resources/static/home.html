@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Save Money – Smart Expense Tracker</title>
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+body{ overflow-x:hidden; }
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 40px;
+background:white;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+flex-wrap:wrap;
+}
+.logo{ font-size:22px; font-weight:bold; color:#2196f3; }
+.nav-lang{ display:flex; align-items:center; gap:20px; }
+nav a{
+text-decoration:none;
+margin-left:15px;
+font-weight:bold;
+}
+.login{ color:#2e7d32; }
+.topbtn{ background:#66bb6a; color:white; padding:8px 18px; border-radius:5px; }
+.lang-select{
+padding:6px 12px;
+border-radius:20px;
+border:1px solid #ccc;
+background:#f9f9f9;
+cursor:pointer;
+font-size:14px;
+}
+.hero{
+height:90vh;
+background:url('https://images.unsplash.com/photo-1579621970795-87facc2f976d?q=80&w=1600') center/cover no-repeat;
+position:relative;
+}
+.overlay{
+height:100%;
+background:rgba(0,0,0,.18);
+display:flex;
+align-items:center;
+padding-left:80px;
+}
+.content{ color:white; animation:fadeIn 2s; }
+.content h1{ font-size:56px; margin-bottom:20px; }
+.content p{ font-size:24px; margin-bottom:35px; }
+.buttons{ display:flex; gap:20px; }
+.btn{
+border:none;
+padding:16px 50px;
+font-size:28px;
+font-weight:bold;
+color:white;
+border-radius:6px;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+.signup{ background:#28c76f; }
+.loginbtn{ background:#1976d2; }
+.btn:hover{ transform:scale(1.05); transition:.3s; }
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(30px)}
+to{opacity:1;transform:translateY(0)}
+}
+@media(max-width:768px){
+.content h1{ font-size:38px; }
+.content p{ font-size:18px; }
+.overlay{ padding-left:30px; }
+.btn{ font-size:20px; padding:12px 30px; }
+header{ flex-direction:column; gap:10px; }
+.nav-lang{ width:100%; justify-content:center; }
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">SaveMoney</div>
+<div class="nav-lang">
+<nav>
+<a href="login.html" class="login" id="navLogin">Login</a>
+<a href="signup.html" class="topbtn" id="navSignup">Sign Up</a>
+</nav>
+<select id="languageSwitcher" class="lang-select">
+<option value="en">English</option>
+<option value="hi">हिंदी</option>
+<option value="mr">मराठी</option>
+</select>
+</div>
+</header>
+
+<section class="hero">
+<div class="overlay">
+<div class="content">
+<h1 id="heroTitle">Save More, Spend Smarter</h1>
+<p id="heroSubtitle">Take control of your finances and start saving today.</p>
+<div class="buttons">
+<button class="btn signup" id="heroSignupBtn" onclick="location.href='signup.html'">Sign Up</button>
+<button class="btn loginbtn" id="heroLoginBtn" onclick="location.href='login.html'">Login</button>
+</div>
+</div>
+</div>
+</section>
+
+<script>
+// Make language switching robust: wait for DOM, guard against missing elements and disabled localStorage
+document.addEventListener('DOMContentLoaded', function () {
+    const translations = {
+        en: {
+            navLogin: "Login", navSignup: "Sign Up",
+            heroTitle: "Save More, Spend Smarter",
+            heroSubtitle: "Take control of your finances and start saving today.",
+            heroSignup: "Sign Up", heroLogin: "Login"
+        },
+        hi: {
+            navLogin: "लॉगिन", navSignup: "साइन अप",
+            heroTitle: "अधिक बचाएं, स्मार्ट खर्च करें",
+            heroSubtitle: "अपने वित्त पर नियंत्रण रखें और आज से बचत शुरू करें।",
+            heroSignup: "साइन अप", heroLogin: "लॉगिन"
+        },
+        mr: {
+            navLogin: "लॉगिन", navSignup: "साइन अप",
+            heroTitle: "अधिक बचवा, हुशार खर्च करा",
+            heroSubtitle: "तुमच्या वित्तावर नियंत्रण ठेवा आणि आजपासून बचत सुरू करा.",
+            heroSignup: "साइन अप", heroLogin: "लॉगिन"
+        }
+    };
+
+    function applyLanguage(lang) {
+        const t = translations[lang] || translations.en;
+        const setText = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        };
+        setText("navLogin", t.navLogin);
+        setText("navSignup", t.navSignup);
+        setText("heroTitle", t.heroTitle);
+        setText("heroSubtitle", t.heroSubtitle);
+        setText("heroSignupBtn", t.heroSignup);
+        setText("heroLoginBtn", t.heroLogin);
+    }
+
+    const langSelect = document.getElementById("languageSwitcher");
+    const DEFAULT_LANG = 'en';
+    let savedLang = DEFAULT_LANG;
+    try {
+        const ls = localStorage.getItem('appLanguage');
+        if (ls) savedLang = ls;
+    } catch (e) {
+        // localStorage may be unavailable (privacy mode) — fall back to default
+        savedLang = DEFAULT_LANG;
+    }
+
+    // Apply initially even if select is missing
+    applyLanguage(savedLang);
+
+    if (langSelect) {
+        try { langSelect.value = savedLang; } catch (e) { /* ignore invalid value */ }
+        langSelect.addEventListener('change', function (e) {
+            const newLang = e.target.value || DEFAULT_LANG;
+            try { localStorage.setItem('appLanguage', newLang); } catch (err) { /* ignore */ }
+            applyLanguage(newLang);
+        });
+    }
+});
+</script>
+</body>
+</html>
