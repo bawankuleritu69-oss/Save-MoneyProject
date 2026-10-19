@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaveMoney | Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        body { background: #eef2f5; display: flex; min-height: 100vh; }
+        .sidebar { width: 280px; background: #1a2e2c; color: #e2f0e8; flex-shrink: 0; transition: all 0.2s; display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.05); }
+        .sidebar-header { padding: 32px 24px 20px 24px; border-bottom: 1px solid #2e4a44; }
+        .sidebar-header h2 { font-size: 1.7rem; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #c7f0cf; }
+        .sidebar-header p { font-size: 0.75rem; color: #98b3a8; margin-top: 8px; }
+        .nav-menu { flex: 1; padding: 30px 16px; display: flex; flex-direction: column; gap: 12px; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 40px; font-weight: 500; color: #cae3d9; transition: 0.2s; cursor: pointer; }
+        .nav-item i { width: 24px; font-size: 1.2rem; }
+        .nav-item.active { background: #2f6b4a; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .nav-item:not(.active):hover { background: #2a4a40; color: #f0faf4; }
+        .sidebar-footer { padding: 20px 20px 32px; border-top: 1px solid #2e4a44; font-size: 0.75rem; color: #8aada0; }
+        .main-content { flex: 1; padding: 24px 28px; overflow-y: auto; }
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .stat-card { background: white; border-radius: 28px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #e2edf2; }
+        .stat-title { font-size: 0.8rem; text-transform: uppercase; font-weight: 600; color: #6c7e8f; }
+        .stat-amount { font-size: 1.9rem; font-weight: 800; color: #1f3b2c; margin-top: 8px; }
+        .section { display: none; animation: fade 0.2s ease; }
+        .section.active-section { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(5px);} to { opacity: 1; transform: translateY(0);} }
+        .form-card { background: white; border-radius: 32px; padding: 28px; box-shadow: 0 8px 20px rgba(0,0,0,0.03); border: 1px solid #e9eff4; margin-bottom: 32px; }
+        .form-card h3 { font-size: 1.5rem; margin-bottom: 20px; color: #1c4d2d; }
+        .form-row { display: flex; flex-wrap: wrap; gap: 16px; }
+        .form-field { flex: 1; min-width: 140px; }
+        .form-field label { font-size: 0.7rem; font-weight: 600; color: #4b6e5c; }
+        .form-field input, .form-field select { width: 100%; padding: 12px 14px; border-radius: 24px; border: 1px solid #cfdfea; margin-top: 5px; }
+        .btn-primary { background: #1e7e34; border: none; padding: 12px 24px; border-radius: 40px; font-weight: 700; color: white; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .summary-chart-row { display: flex; flex-wrap: wrap; gap: 28px; margin: 20px 0 32px; }
+        .summary-box { flex: 1; background: white; border-radius: 28px; padding: 20px; border: 1px solid #e9eff4; }
+        .category-list { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .cat-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px dashed #e2e8f0; }
+        .table-wrapper { background: white; border-radius: 28px; padding: 20px; margin-top: 24px; overflow-x: auto; }
+        .expense-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .expense-table th, .expense-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #ecf3f7; }
+        .action-icons i { margin: 0 5px; cursor: pointer; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000; }
+        .modal-content { background:white; max-width:450px; width:90%; border-radius:36px; padding:28px; }
+        @media (max-width:800px) { .sidebar { width:80px; } .sidebar-header h2 span, .sidebar-header p, .nav-item span, .sidebar-footer { display:none; } .nav-item { justify-content:center; } .main-content { padding:16px; } }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2><i class="fas fa-piggy-bank"></i><span> SaveMoney</span></h2>
+        <p id="sidebarSub">Save more, live better</p>
+    </div>
+    <div class="nav-menu">
+        <div class="nav-item active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i><span id="navDashboard">Dashboard</span></div>
+        <div class="nav-item" data-section="add-expense-page"><i class="fas fa-plus-circle"></i><span id="navAddExpense">Add Expense</span></div>
+        <div class="nav-item" data-section="reports"><i class="fas fa-chart-line"></i><span id="navReports">Reports & Export</span></div>
+        <div class="nav-item" id="logoutSidebarBtn"><i class="fas fa-sign-out-alt"></i><span id="navLogout">Logout</span></div>
+    </div>
+    <div class="sidebar-footer"><i class="fas fa-heart" style="color:#c1e4d1;"></i><span id="footerText">Track every penny</span></div>
+</div>
+
+<div class="main-content">
+    <div id="dashboardSection" class="section active-section">
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-title" id="statMonthTitle">Total Expenses (This Month)</div><div class="stat-amount" id="totalMonthAmount">₹0</div></div>
+            <div class="stat-card"><div class="stat-title" id="statTodayTitle">Today's Expenses</div><div class="stat-amount" id="todayAmount">₹0</div></div>
+            <div class="stat-card"><div class="stat-title" id="statWeekTitle">This Week</div><div class="stat-amount" id="weekAmount">₹0</div></div>
+        </div>
+        <div class="summary-chart-row">
+            <div class="summary-box"><h3 id="summaryHeading"><i class="fas fa-chart-pie"></i> Expense Summary</h3><canvas id="expenseChartDashboard" style="max-height:180px; width:100%"></canvas><div id="summaryCategoryListDashboard" class="category-list"></div></div>
+            <div class="summary-box"><h3 id="recentHeading"><i class="fas fa-list-ul"></i> Recent Expenses</h3><div id="recentExpensesList" style="max-height:240px; overflow-y:auto;"></div><div style="margin-top:12px; text-align:right;"><span class="view-summary-link" style="font-size:0.7rem; cursor:pointer;" id="goToAllExpenses">See all expenses →</span></div></div>
+        </div>
+        <div class="table-wrapper">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <select id="categoryFilterDashboard"><option value="ALL">All Categories</option></select>
+                <input type="text" id="searchInputDashboard" placeholder="Search expense..." style="padding:8px 14px; border-radius:40px; border:1px solid #ccc;">
+            </div>
+            <table class="expense-table"><thead id="tableHead"><tr><th>#</th><th>Category</th><th>Name</th><th>Amount</th><th>Date</th><th>Time</th><th>Action</th></tr></thead><tbody id="expenseTableBodyDashboard"></tbody></table>
+        </div>
+    </div>
+
+    <div id="addExpenseSection" class="section">
+        <div class="form-card">
+            <h3 id="addExpenseHeading"><i class="fas fa-wallet"></i> Add New Expense</h3>
+            <div class="form-row">
+                <div class="form-field"><label id="catLabel">Category</label><select id="expenseCategoryAdd"><option>Grocery</option><option>Rent</option><option>Petrol</option><option>Food</option><option>Transport</option><option>Other</option></select></div>
+                <div class="form-field"><label id="nameLabel">Expense Name</label><input type="text" id="expenseNameAdd" placeholder="e.g., Groceries"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-field"><label id="amountLabel">Amount (₹)</label><input type="number" id="expenseAmountAdd" placeholder="Enter amount"></div>
+                <div class="form-field"><label id="dateLabel">Date</label><input type="date" id="expenseDateAdd"></div>
+                <div class="form-field"><label id="timeLabel">Time</label><input type="time" id="expenseTimeAdd"></div>
+            </div>
+            <button class="btn-primary" id="addExpenseBtnSide"><i class="fas fa-save"></i> <span id="saveExpenseBtnText">Save Expense</span></button>
+        </div>
+        <div class="table-wrapper"><h4 id="previewHeading">📋 Expense Preview (Latest 5)</h4><div id="previewLatestExpenses"></div></div>
+    </div>
+
+    <div id="reportsSection" class="section">
+        <div class="form-card">
+            <h3 id="reportsHeading"><i class="fas fa-file-export"></i> Export Reports</h3>
+            <button class="btn-primary" id="exportCsvBtn"><i class="fas fa-download"></i> <span id="exportBtnText">Export CSV Report</span></button>
+            <hr style="margin: 28px 0;">
+            <h4 id="monthlyHeading">📊 Monthly Breakdown</h4>
+            <canvas id="monthlyBarChart" width="400" height="200" style="max-height:260px; width:100%"></canvas>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal"><div class="modal-content"><span id="closeEditModal" style="float:right; font-size:1.8rem; cursor:pointer;">&times;</span><h3 id="editModalTitle">Edit Expense</h3><input type="hidden" id="editId"><label id="editCatLabel">Category</label><select id="editCategory"><option>Grocery</option><option>Rent</option><option>Petrol</option><option>Food</option><option>Transport</option><option>Other</option></select><label id="editNameLabel">Name</label><input type="text" id="editName"><label id="editAmountLabel">Amount</label><input type="number" id="editAmount"><label id="editDateLabel">Date</label><input type="date" id="editDate"><label id="editTimeLabel">Time</label><input type="time" id="editTime"><button class="btn-primary" id="saveEditBtn" style="margin-top:16px;"><span id="updateBtnText">Update</span></button></div></div>
+
+<script>
+    const API_BASE = '/api';
+    let expenses = [];
+    let dashboardChart = null;
+    let monthlyChart = null;
+
+    // Translations (English, Hindi, Marathi)
+    const translations = {
+        en: {
+            sidebarSub: "Save more, live better", navDashboard: "Dashboard", navAddExpense: "Add Expense", navReports: "Reports & Export", navLogout: "Logout", footerText: "Track every penny",
+            statMonthTitle: "Total Expenses (This Month)", statTodayTitle: "Today's Expenses", statWeekTitle: "This Week",
+            summaryHeading: "Expense Summary", recentHeading: "Recent Expenses", seeAll: "See all expenses →",
+            tableHead: ["#","Category","Name","Amount","Date","Time","Action"],
+            addExpenseHeading: "Add New Expense", catLabel: "Category", nameLabel: "Expense Name", amountLabel: "Amount (₹)", dateLabel: "Date", timeLabel: "Time", saveExpenseBtnText: "Save Expense",
+            previewHeading: "📋 Expense Preview (Latest 5)", reportsHeading: "Export Reports", exportBtnText: "Export CSV Report", monthlyHeading: "📊 Monthly Breakdown",
+            editModalTitle: "Edit Expense", editCatLabel: "Category", editNameLabel: "Name", editAmountLabel: "Amount", editDateLabel: "Date", editTimeLabel: "Time", updateBtnText: "Update",
+            filterPlaceholder: "Search expense...", allCategories: "All Categories", amountInvalidAlert: "Please enter a valid amount", dateMissingAlert: "Please select a date", expenseAddedAlert: "Expense added!", deleteConfirm: "Delete this expense?", statsError: "Error loading stats"
+        },
+        hi: {
+            sidebarSub: "अधिक बचाएं, बेहतर जिएं", navDashboard: "डैशबोर्ड", navAddExpense: "खर्च जोड़ें", navReports: "रिपोर्ट और निर्यात", navLogout: "लॉगआउट", footerText: "हर पैसे का हिसाब रखें",
+            statMonthTitle: "कुल खर्च (इस महीने)", statTodayTitle: "आज का खर्च", statWeekTitle: "इस सप्ताह",
+            summaryHeading: "खर्च सारांश", recentHeading: "हाल के खर्च", seeAll: "सभी खर्च देखें →",
+            tableHead: ["#","श्रेणी","नाम","राशि","तारीख","समय","कार्रवाई"],
+            addExpenseHeading: "नया खर्च जोड़ें", catLabel: "श्रेणी", nameLabel: "खर्च का नाम", amountLabel: "राशि (₹)", dateLabel: "तारीख", timeLabel: "समय", saveExpenseBtnText: "खर्च सहेजें",
+            previewHeading: "📋 खर्च पूर्वावलोकन (नवीनतम 5)", reportsHeading: "रिपोर्ट निर्यात करें", exportBtnText: "CSV रिपोर्ट निर्यात करें", monthlyHeading: "📊 मासिक विवरण",
+            editModalTitle: "खर्च संपादित करें", editCatLabel: "श्रेणी", editNameLabel: "नाम", editAmountLabel: "राशि", editDateLabel: "तारीख", editTimeLabel: "समय", updateBtnText: "अपडेट करें",
+            filterPlaceholder: "खर्च खोजें...", allCategories: "सभी श्रेणियाँ", amountInvalidAlert: "कृपया वैध राशि दर्ज करें", dateMissingAlert: "कृपया तारीख चुनें", expenseAddedAlert: "खर्च जोड़ा गया!", deleteConfirm: "यह खर्च हटाएं?", statsError: "आँकड़े लोड करने में त्रुटि"
+        },
+        mr: {
+            sidebarSub: "अधिक बचवा, चांगलं जगा", navDashboard: "डॅशबोर्ड", navAddExpense: "खर्च जोडा", navReports: "अहवाल आणि निर्यात", navLogout: "लॉगआउट", footerText: "प्रत्येक पैशाचा हिशोब ठेवा",
+            statMonthTitle: "एकूण खर्च (या महिन्यात)", statTodayTitle: "आजचा खर्च", statWeekTitle: "या आठवड्यात",
+            summaryHeading: "खर्च सारांश", recentHeading: "अलीकडील खर्च", seeAll: "सर्व खर्च पहा →",
+            tableHead: ["#","वर्ग","नाव","रक्कम","तारीख","वेळ","क्रिया"],
+            addExpenseHeading: "नवीन खर्च जोडा", catLabel: "वर्ग", nameLabel: "खर्चाचे नाव", amountLabel: "रक्कम (₹)", dateLabel: "तारीख", timeLabel: "वेळ", saveExpenseBtnText: "खर्च जतन करा",
+            previewHeading: "📋 खर्च पूर्वावलोकन (अलीकडील 5)", reportsHeading: "अहवाल निर्यात करा", exportBtnText: "CSV अहवाल निर्यात करा", monthlyHeading: "📊 मासिक तपशील",
+            editModalTitle: "खर्च संपादित करा", editCatLabel: "वर्ग", editNameLabel: "नाव", editAmountLabel: "रक्कम", editDateLabel: "तारीख", editTimeLabel: "वेळ", updateBtnText: "अद्यतनित करा",
+            filterPlaceholder: "खर्च शोधा...", allCategories: "सर्व वर्ग", amountInvalidAlert: "कृपया वैध रक्कम प्रविष्ट करा", dateMissingAlert: "कृपया तारीख निवडा", expenseAddedAlert: "खर्च जोडला गेला!", deleteConfirm: "हा खर्च हटवायचा?", statsError: "आकडेवारी लोड करण्यात त्रुटी"
+        }
+    };
+    let currentLang = localStorage.getItem("appLanguage") || "en";
+    function t(key) { return translations[currentLang][key] || translations.en[key] || key; }
+
+    function applyUI() {
+        document.getElementById("sidebarSub").innerText = t("sidebarSub");
+        document.getElementById("navDashboard").innerText = t("navDashboard");
+        document.getElementById("navAddExpense").innerText = t("navAddExpense");
+        document.getElementById("navReports").innerText = t("navReports");
+        document.getElementById("navLogout").innerText = t("navLogout");
+        document.getElementById("footerText").innerText = t("footerText");
+        document.getElementById("statMonthTitle").innerText = t("statMonthTitle");
+        document.getElementById("statTodayTitle").innerText = t("statTodayTitle");
+        document.getElementById("statWeekTitle").innerText = t("statWeekTitle");
+        document.getElementById("summaryHeading").innerHTML = `<i class="fas fa-chart-pie"></i> ${t("summaryHeading")}`;
+        document.getElementById("recentHeading").innerHTML = `<i class="fas fa-list-ul"></i> ${t("recentHeading")}`;
+        document.getElementById("goToAllExpenses").innerText = t("seeAll");
+        let headers = t("tableHead");
+        document.getElementById("tableHead").innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+        document.getElementById("addExpenseHeading").innerHTML = `<i class="fas fa-wallet"></i> ${t("addExpenseHeading")}`;
+        document.getElementById("catLabel").innerText = t("catLabel");
+        document.getElementById("nameLabel").innerText = t("nameLabel");
+        document.getElementById("amountLabel").innerText = t("amountLabel");
+        document.getElementById("dateLabel").innerText = t("dateLabel");
+        document.getElementById("timeLabel").innerText = t("timeLabel");
+        document.getElementById("saveExpenseBtnText").innerText = t("saveExpenseBtnText");
+        document.getElementById("previewHeading").innerHTML = `${t("previewHeading")}`;
+        document.getElementById("reportsHeading").innerHTML = `<i class="fas fa-file-export"></i> ${t("reportsHeading")}`;
+        document.getElementById("exportBtnText").innerText = t("exportBtnText");
+        document.getElementById("monthlyHeading").innerHTML = `${t("monthlyHeading")}`;
+        document.getElementById("editModalTitle").innerText = t("editModalTitle");
+        document.getElementById("editCatLabel").innerText = t("editCatLabel");
+        document.getElementById("editNameLabel").innerText = t("editNameLabel");
+        document.getElementById("editAmountLabel").innerText = t("editAmountLabel");
+        document.getElementById("editDateLabel").innerText = t("editDateLabel");
+        document.getElementById("editTimeLabel").innerText = t("editTimeLabel");
+        document.getElementById("updateBtnText").innerText = t("updateBtnText");
+        document.getElementById("searchInputDashboard").placeholder = t("filterPlaceholder");
+        if (document.getElementById("categoryFilterDashboard").options.length > 0)
+            document.getElementById("categoryFilterDashboard").options[0].text = t("allCategories");
+    }
+
+    // --- API & Logic (unchanged) ---
+    async function apiCall(url, options = {}) {
+        const res = await fetch(url, { ...options, credentials: 'same-origin', headers: { 'Content-Type': 'application/json', ...options.headers } });
+        if (res.status === 401) { window.location.href = '/login.html'; throw new Error('Unauthorized'); }
+        return res;
+    }
+    async function checkAuth() {
+        try { const res = await apiCall(API_BASE + '/auth/current-user'); const data = await res.json(); if (!data.loggedIn) window.location.href = '/login.html'; return data; } catch { window.location.href = '/login.html'; }
+    }
+    async function loadExpenses() { try { const res = await apiCall(API_BASE + '/expenses'); expenses = await res.json(); refreshAllUI(); } catch(e) { console.error(e); } }
+    async function addExpenseToBackend(expense) { await apiCall(API_BASE + '/expenses', { method: 'POST', body: JSON.stringify(expense) }); await loadExpenses(); }
+    async function updateExpenseInBackend(id, expense) { await apiCall(API_BASE + '/expenses/' + id, { method: 'PUT', body: JSON.stringify(expense) }); await loadExpenses(); }
+    async function deleteExpenseFromBackend(id) { await apiCall(API_BASE + '/expenses/' + id, { method: 'DELETE' }); await loadExpenses(); }
+    async function loadStats() {
+        try { const res = await apiCall(API_BASE + '/expenses/stats'); const stats = await res.json(); document.getElementById("totalMonthAmount").innerHTML = `₹${stats.monthTotal?.toFixed(2) || 0}`; document.getElementById("todayAmount").innerHTML = `₹${stats.todayTotal?.toFixed(2) || 0}`; document.getElementById("weekAmount").innerHTML = `₹${stats.weekTotal?.toFixed(2) || 0}`; if (stats.categorySummary) updateCharts(stats.categorySummary); } catch(e) { console.error(e); alert(t("statsError")); }
+    }
+    function updateCharts(categorySummary) {
+        const categories = Object.keys(categorySummary);
+        const amounts = Object.values(categorySummary);
+        const total = amounts.reduce((a,b)=>a+b,0);
+        const listDiv = document.getElementById("summaryCategoryListDashboard");
+        if (listDiv) listDiv.innerHTML = categories.map((cat,idx)=>`<div class="cat-item"><span>${cat}</span><span>₹${amounts[idx].toFixed(2)} (${total?((amounts[idx]/total)*100).toFixed(1):0}%)</span></div>`).join('');
+        if (dashboardChart) dashboardChart.destroy();
+        const ctx = document.getElementById('expenseChartDashboard').getContext('2d');
+        dashboardChart = new Chart(ctx, { type: 'doughnut', data: { labels: categories, datasets: [{ data: amounts, backgroundColor: ['#2b9e46','#f4b942','#4c9aff','#e8644a','#9b6b9e','#6b9e7a'] }] }, options: { responsive: true, plugins: { legend: { position:'bottom', labels:{boxWidth:10,font:{size:10}} } } } });
+        if (monthlyChart) monthlyChart.destroy();
+        const monthMap = new Map(); expenses.forEach(e => { let m = e.date.substring(0,7); monthMap.set(m, (monthMap.get(m)||0)+e.amount); });
+        const sortedMonths = Array.from(monthMap.keys()).sort();
+        const barCtx = document.getElementById('monthlyBarChart')?.getContext('2d');
+        if (barCtx) monthlyChart = new Chart(barCtx, { type:'bar', data:{ labels:sortedMonths, datasets:[{ label:'Expenses (₹)', data:sortedMonths.map(m=>monthMap.get(m)), backgroundColor:'#4e9f6e' }] } });
+    }
+    function renderDashboardTable() {
+        const filterCat = document.getElementById("categoryFilterDashboard")?.value || "ALL";
+        const search = document.getElementById("searchInputDashboard")?.value.toLowerCase() || "";
+        let filtered = expenses.filter(e => (filterCat==="ALL" || e.category===filterCat) && (e.description.toLowerCase().includes(search) || e.category.toLowerCase().includes(search)));
+        const tbody = document.getElementById("expenseTableBodyDashboard");
+        if (!tbody) return;
+        tbody.innerHTML = "";
+        filtered.slice(0,20).forEach((exp,idx) => {
+            let row = `<tr><td>${idx+1}</td><td><span style="background:#eef2e6; padding:2px 8px; border-radius:40px;">${exp.category}</span></td><td>${exp.description}</td><td>₹${exp.amount.toFixed(2)}</td><td>${formatDate(exp.date)}</td><td>${exp.time}</td><td class="action-icons"><i class="fa-regular fa-pen-to-square edit-dash" data-id="${exp.id}"></i> <i class="fa-regular fa-trash-can delete-dash" data-id="${exp.id}"></i></td></tr>`;
+            tbody.insertAdjacentHTML('beforeend', row);
+        });
+        attachTableEvents();
+        const recentDiv = document.getElementById("recentExpensesList");
+        if (recentDiv) recentDiv.innerHTML = expenses.slice(-5).reverse().map(e=>`<div style="font-size:0.8rem; padding:6px 0; border-bottom:1px solid #eee;"><b>${e.description}</b> - ₹${e.amount} (${formatDate(e.date)})</div>`).join('');
+    }
+    function attachTableEvents() {
+        document.querySelectorAll('.edit-dash').forEach(btn => btn.addEventListener('click',()=> openEditModal(parseInt(btn.dataset.id))));
+        document.querySelectorAll('.delete-dash').forEach(btn => btn.addEventListener('click',async ()=>{ if(confirm(t("deleteConfirm"))) await deleteExpenseFromBackend(parseInt(btn.dataset.id)); }));
+    }
+    function openEditModal(id) { let exp = expenses.find(e=>e.id===id); if(!exp) return; document.getElementById("editId").value = exp.id; document.getElementById("editCategory").value = exp.category; document.getElementById("editName").value = exp.description; document.getElementById("editAmount").value = exp.amount; document.getElementById("editDate").value = exp.date; document.getElementById("editTime").value = exp.time; document.getElementById("editModal").style.display = "flex"; }
+    async function updateExpenseFromModal() { let id = parseInt(document.getElementById("editId").value); let updated = { category: document.getElementById("editCategory").value, description: document.getElementById("editName").value, amount: parseFloat(document.getElementById("editAmount").value), date: document.getElementById("editDate").value, time: document.getElementById("editTime").value }; await updateExpenseInBackend(id, updated); document.getElementById("editModal").style.display = "none"; }
+    async function addExpenseFromSide() {
+        let expense = { category: document.getElementById("expenseCategoryAdd").value, description: document.getElementById("expenseNameAdd").value.trim() || document.getElementById("expenseCategoryAdd").value, amount: parseFloat(document.getElementById("expenseAmountAdd").value), date: document.getElementById("expenseDateAdd").value, time: document.getElementById("expenseTimeAdd").value || "12:00" };
+        if (isNaN(expense.amount) || expense.amount <= 0) { alert(t("amountInvalidAlert")); return; }
+        if (!expense.date) { alert(t("dateMissingAlert")); return; }
+        await addExpenseToBackend(expense);
+        document.getElementById("expenseAmountAdd").value = ""; document.getElementById("expenseNameAdd").value = ""; document.getElementById("expenseDateAdd").value = new Date().toISOString().split('T')[0]; document.getElementById("expenseTimeAdd").value = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        alert(t("expenseAddedAlert"));
+    }
+    function refreshAllUI() { loadStats(); renderDashboardTable(); updatePreviewLatest(); populateCategoryFilters(); }
+    function updatePreviewLatest() { let previewDiv = document.getElementById("previewLatestExpenses"); if(previewDiv) previewDiv.innerHTML = `<ul>${expenses.slice(-5).reverse().map(e=>`<li>${e.description} - ₹${e.amount} (${formatDate(e.date)})</li>`).join('')}</ul>`; }
+    function populateCategoryFilters() { let cats = [...new Set(expenses.map(e=>e.category))]; let filterSel = document.getElementById("categoryFilterDashboard"); if(filterSel){ let curr = filterSel.value; filterSel.innerHTML = `<option value="ALL">${t("allCategories")}</option>`; cats.forEach(c=>{ filterSel.innerHTML += `<option value="${c}">${c}</option>`; }); filterSel.value = curr; } }
+    function formatDate(d) { if(!d) return ''; let p=d.split('-'); if(p.length!==3) return d; let monthNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return `${parseInt(p[2])} ${monthNames[parseInt(p[1])-1]} ${p[0]}`; }
+    async function exportCSV() { let csv = [["Category","Name","Amount","Date","Time"]]; expenses.forEach(e=>csv.push([e.category,e.description,e.amount,e.date,e.time])); let blob = new Blob([csv.map(row=>row.join(",")).join("\n")],{type:"text/csv"}); let a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "expenses_report.csv"; a.click(); URL.revokeObjectURL(a.href); }
+    async function logout() { await apiCall(API_BASE+'/auth/logout',{method:'POST'}); window.location.href='/home.html'; }
+
+    window.onload = async () => {
+        await checkAuth();
+        applyUI();
+        document.getElementById("expenseDateAdd").value = new Date().toISOString().split('T')[0];
+        document.getElementById("expenseTimeAdd").value = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        document.getElementById("addExpenseBtnSide")?.addEventListener('click', addExpenseFromSide);
+        document.getElementById("saveEditBtn")?.addEventListener('click', updateExpenseFromModal);
+        document.getElementById("closeEditModal")?.addEventListener('click', () => document.getElementById("editModal").style.display = "none");
+        document.getElementById("exportCsvBtn")?.addEventListener('click', exportCSV);
+        document.getElementById("logoutSidebarBtn")?.addEventListener('click', logout);
+        document.getElementById("categoryFilterDashboard")?.addEventListener('change', () => renderDashboardTable());
+        document.getElementById("searchInputDashboard")?.addEventListener('input', () => renderDashboardTable());
+        document.getElementById("goToAllExpenses")?.addEventListener('click', () => { document.querySelector('.nav-item[data-section="dashboard"]').click(); });
+        const sections = { dashboard:'dashboardSection', 'add-expense-page':'addExpenseSection', reports:'reportsSection' };
+        document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+            item.addEventListener('click', () => { const sectionId = sections[item.dataset.section]; document.querySelectorAll('.section').forEach(sec=>sec.classList.remove('active-section')); if(sectionId) document.getElementById(sectionId).classList.add('active-section'); document.querySelectorAll('.nav-item').forEach(nav=>nav.classList.remove('active')); item.classList.add('active'); });
+        });
+        await loadExpenses();
+    };
+</script>
+</body>
+</html>

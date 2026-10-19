@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 6 | Interactive Budget App</title>
+    <style>
+        :root {
+            --ink: #17211d;
+            --muted: #64736c;
+            --panel: #ffffff;
+            --line: #dfe8e2;
+            --green: #257a4c;
+            --mint: #dff3e6;
+            --amber: #f2b84b;
+            --blue: #3b82c4;
+            --coral: #dc6548;
+            --bg: #f4f7f1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 10%, rgba(37, 122, 76, 0.12), transparent 28%),
+                linear-gradient(135deg, #f7faf4 0%, #edf5f2 48%, #f8f3e8 100%);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .app-shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 24px 0 40px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--green);
+            color: white;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        h1 {
+            font-size: clamp(1.55rem, 3vw, 2.4rem);
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-top: 4px;
+            font-size: 0.95rem;
+        }
+
+        .theme-toggle {
+            border: 1px solid var(--line);
+            background: var(--panel);
+            color: var(--ink);
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(23, 33, 29, 0.06);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            align-items: stretch;
+            margin-bottom: 20px;
+        }
+
+        .summary-panel,
+        .visual-panel,
+        .form-panel,
+        .list-panel,
+        .insight-panel {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(23, 33, 29, 0.08);
+        }
+
+        .summary-panel {
+            padding: 24px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 16px;
+            background: #fbfdf9;
+        }
+
+        .metric span {
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .metric strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 1.7rem;
+        }
+
+        .goal {
+            margin-top: 20px;
+        }
+
+        .goal-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .progress-track {
+            height: 14px;
+            border-radius: 99px;
+            overflow: hidden;
+            background: #e8efe9;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--green), var(--amber));
+            transition: width 0.25s ease;
+        }
+
+        .visual-panel {
+            padding: 20px;
+            display: grid;
+            align-content: center;
+            gap: 16px;
+        }
+
+        .wallet-art {
+            min-height: 160px;
+            border-radius: 8px;
+            background:
+                linear-gradient(145deg, rgba(37, 122, 76, 0.92), rgba(59, 130, 196, 0.9)),
+                linear-gradient(90deg, transparent 0 62%, rgba(255, 255, 255, 0.16) 62% 66%, transparent 66%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-art::before,
+        .wallet-art::after {
+            content: "";
+            position: absolute;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .wallet-art::before {
+            width: 62%;
+            height: 42%;
+            left: 18%;
+            bottom: 22%;
+            box-shadow: 0 16px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .wallet-art::after {
+            width: 58px;
+            height: 28px;
+            right: 34px;
+            top: 58px;
+        }
+
+        .visual-note {
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+        }
+
+        .form-panel,
+        .list-panel,
+        .insight-panel {
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 1.18rem;
+            margin-bottom: 16px;
+        }
+
+        .field {
+            display: grid;
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        label {
+            color: #405149;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid #cbd9d0;
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--ink);
+            font-size: 0.96rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 3px solid rgba(37, 122, 76, 0.18);
+            border-color: var(--green);
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+
+        .primary-btn,
+        .ghost-btn {
+            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 800;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .primary-btn {
+            background: var(--green);
+            color: white;
+        }
+
+        .ghost-btn {
+            background: white;
+            color: var(--ink);
+            border-color: var(--line);
+        }
+
+        .primary-btn:hover,
+        .ghost-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(23, 33, 29, 0.1);
+        }
+
+        .live-preview {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 8px;
+            background: var(--mint);
+            color: #1c5134;
+            line-height: 1.45;
+            min-height: 72px;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr 170px;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .expense-list {
+            display: grid;
+            gap: 10px;
+            min-height: 220px;
+        }
+
+        .expense-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 12px;
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-left: 5px solid var(--green);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .expense-name {
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .expense-meta {
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        .amount {
+            font-weight: 900;
+        }
+
+        .delete-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #f0c5bc;
+            border-radius: 8px;
+            background: #fff4f1;
+            color: #a53922;
+            cursor: pointer;
+            font-weight: 900;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            min-height: 220px;
+            border: 1px dashed #cbd9d0;
+            border-radius: 8px;
+            color: var(--muted);
+            text-align: center;
+            padding: 22px;
+        }
+
+        .insight-panel {
+            margin-top: 20px;
+        }
+
+        .bar-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 100px 1fr 76px;
+            align-items: center;
+            gap: 10px;
+            color: #405149;
+            font-size: 0.9rem;
+        }
+
+        .bar-track {
+            height: 16px;
+            background: #e8efe9;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: var(--blue);
+            transition: width 0.25s ease;
+        }
+
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            transform: translateY(120px);
+            opacity: 0;
+            background: #17211d;
+            color: white;
+            padding: 13px 16px;
+            border-radius: 8px;
+            box-shadow: 0 14px 30px rgba(23, 33, 29, 0.22);
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .dark {
+            --bg: #121916;
+            --ink: #edf5ef;
+            --muted: #aebbb4;
+            --panel: #19231f;
+            --line: #2b3a34;
+            background: linear-gradient(135deg, #101714, #17211d 55%, #251f17);
+        }
+
+        .dark .summary-panel,
+        .dark .visual-panel,
+        .dark .form-panel,
+        .dark .list-panel,
+        .dark .insight-panel,
+        .dark .theme-toggle,
+        .dark .metric,
+        .dark input,
+        .dark select,
+        .dark .ghost-btn,
+        .dark .expense-item {
+            background: var(--panel);
+            color: var(--ink);
+        }
+
+        .dark .empty-state,
+        .dark .progress-track,
+        .dark .bar-track {
+            background: #16201c;
+        }
+
+        @media (max-width: 900px) {
+            .hero,
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .topbar,
+            .toolbar,
+            .button-row,
+            .expense-item,
+            .bar-row {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .theme-toggle {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark" aria-hidden="true">SM</div>
+                <div>
+                    <h1>Interactive SaveMoney Planner</h1>
+                    <p class="subtitle">Task 6: HTML, CSS, JavaScript, forms, live data, and DOM manipulation.</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" type="button">Dark mode</button>
+        </header>
+
+        <section class="hero" aria-label="Budget summary">
+            <div class="summary-panel">
+                <h2>Live expense dashboard</h2>
+                <p class="subtitle">Add expenses and watch the page update immediately without refreshing.</p>
+
+                <div class="summary-grid">
+                    <div class="metric">
+                        <span>Total spent</span>
+                        <strong id="totalSpent">Rs.0</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Entries</span>
+                        <strong id="entryCount">0</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Remaining</span>
+                        <strong id="remainingBudget">Rs.0</strong>
+                    </div>
+                </div>
+
+                <div class="goal">
+                    <div class="goal-row">
+                        <span>Monthly budget usage</span>
+                        <span id="budgetPercent">0%</span>
+                    </div>
+                    <div class="progress-track" aria-hidden="true">
+                        <div class="progress-fill" id="budgetFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="visual-panel" aria-label="App illustration">
+                <div class="wallet-art" role="img" aria-label="Wallet illustration"></div>
+                <p class="visual-note">The cards, progress bar, list, filters, category chart, and preview text are all controlled by JavaScript.</p>
+            </aside>
+        </section>
+
+        <section class="workspace">
+            <form class="form-panel" id="expenseForm">
+                <h2 class="panel-title">Add an expense</h2>
+
+                <div class="field">
+                    <label for="budgetInput">Monthly budget</label>
+                    <input id="budgetInput" type="number" min="1" value="15000">
+                </div>
+
+                <div class="field">
+                    <label for="nameInput">Expense name</label>
+                    <input id="nameInput" type="text" placeholder="Example: Lunch, bus ticket, notebook" required>
+                </div>
+
+                <div class="field">
+                    <label for="amountInput">Amount</label>
+                    <input id="amountInput" type="number" min="1" placeholder="Enter amount in rupees" required>
+                </div>
+
+                <div class="field">
+                    <label for="categoryInput">Category</label>
+                    <select id="categoryInput">
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Study">Study</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="button-row">
+                    <button class="primary-btn" type="submit">Add expense</button>
+                    <button class="ghost-btn" id="clearBtn" type="button">Clear</button>
+                </div>
+
+                <div class="live-preview" id="livePreview">Start typing to preview the new expense here.</div>
+            </form>
+
+            <div>
+                <section class="list-panel">
+                    <h2 class="panel-title">Expense records</h2>
+                    <div class="toolbar">
+                        <input id="searchInput" type="search" placeholder="Search expenses">
+                        <select id="filterInput">
+                            <option value="All">All categories</option>
+                            <option value="Food">Food</option>
+                            <option value="Travel">Travel</option>
+                            <option value="Study">Study</option>
+                            <option value="Bills">Bills</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="expense-list" id="expenseList"></div>
+                </section>
+
+                <section class="insight-panel">
+                    <h2 class="panel-title">Real-time category chart</h2>
+                    <div class="bar-list" id="barList"></div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const storageKey = "task6-expenses";
+        const budgetKey = "task6-budget";
+        const categories = ["Food", "Travel", "Study", "Bills", "Other"];
+        const colors = {
+            Food: "#257a4c",
+            Travel: "#3b82c4",
+            Study: "#f2b84b",
+            Bills: "#dc6548",
+            Other: "#8067b7"
+        };
+
+        const form = document.getElementById("expenseForm");
+        const budgetInput = document.getElementById("budgetInput");
+        const nameInput = document.getElementById("nameInput");
+        const amountInput = document.getElementById("amountInput");
+        const categoryInput = document.getElementById("categoryInput");
+        const livePreview = document.getElementById("livePreview");
+        const expenseList = document.getElementById("expenseList");
+        const searchInput = document.getElementById("searchInput");
+        const filterInput = document.getElementById("filterInput");
+        const totalSpent = document.getElementById("totalSpent");
+        const entryCount = document.getElementById("entryCount");
+        const remainingBudget = document.getElementById("remainingBudget");
+        const budgetPercent = document.getElementById("budgetPercent");
+        const budgetFill = document.getElementById("budgetFill");
+        const barList = document.getElementById("barList");
+        const clearBtn = document.getElementById("clearBtn");
+        const themeToggle = document.getElementById("themeToggle");
+        const toast = document.getElementById("toast");
+
+        let expenses = JSON.parse(localStorage.getItem(storageKey)) || [
+            { id: crypto.randomUUID(), name: "College snacks", amount: 120, category: "Food" },
+            { id: crypto.randomUUID(), name: "Bus pass", amount: 550, category: "Travel" },
+            { id: crypto.randomUUID(), name: "JavaScript notes", amount: 240, category: "Study" }
+        ];
+
+        budgetInput.value = localStorage.getItem(budgetKey) || budgetInput.value;
+
+        function formatMoney(value) {
+            return "Rs." + Number(value || 0).toLocaleString("en-IN");
+        }
+
+        function saveState() {
+            localStorage.setItem(storageKey, JSON.stringify(expenses));
+            localStorage.setItem(budgetKey, budgetInput.value || "0");
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            window.clearTimeout(showToast.timer);
+            showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1800);
+        }
+
+        function updatePreview() {
+            const name = nameInput.value.trim() || "New expense";
+            const amount = Number(amountInput.value || 0);
+            const category = categoryInput.value;
+            livePreview.textContent = `${name} will be saved in ${category} for ${formatMoney(amount)}.`;
+        }
+
+        function getVisibleExpenses() {
+            const search = searchInput.value.trim().toLowerCase();
+            const filter = filterInput.value;
+            return expenses.filter((expense) => {
+                const matchesSearch = expense.name.toLowerCase().includes(search);
+                const matchesFilter = filter === "All" || expense.category === filter;
+                return matchesSearch && matchesFilter;
+            });
+        }
+
+        function renderExpenses() {
+            const visibleExpenses = getVisibleExpenses();
+            expenseList.innerHTML = "";
+
+            if (visibleExpenses.length === 0) {
+                expenseList.innerHTML = `<div class="empty-state">No matching expenses yet. Add one from the form.</div>`;
+                return;
+            }
+
+            visibleExpenses.forEach((expense) => {
+                const item = document.createElement("article");
+                item.className = "expense-item";
+                item.style.borderLeftColor = colors[expense.category];
+                item.innerHTML = `
+                    <div>
+                        <div class="expense-name">${expense.name}</div>
+                        <div class="expense-meta">${expense.category}</div>
+                    </div>
+                    <div class="amount">${formatMoney(expense.amount)}</div>
+                    <button class="delete-btn" type="button" aria-label="Delete ${expense.name}" data-id="${expense.id}">X</button>
+                `;
+                expenseList.appendChild(item);
+            });
+        }
+
+        function renderSummary() {
+            const budget = Number(budgetInput.value || 0);
+            const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0);
+            const remaining = budget - total;
+            const percent = budget > 0 ? Math.min((total / budget) * 100, 100) : 0;
+
+            totalSpent.textContent = formatMoney(total);
+            entryCount.textContent = expenses.length;
+            remainingBudget.textContent = formatMoney(remaining);
+            remainingBudget.style.color = remaining < 0 ? "var(--coral)" : "var(--ink)";
+            budgetPercent.textContent = `${Math.round(percent)}%`;
+            budgetFill.style.width = `${percent}%`;
+        }
+
+        function renderBars() {
+            const totals = categories.map((category) => ({
+                category,
+                total: expenses
+                    .filter((expense) => expense.category === category)
+                    .reduce((sum, expense) => sum + Number(expense.amount), 0)
+            }));
+
+            const highest = Math.max(...totals.map((item) => item.total), 1);
+            barList.innerHTML = "";
+
+            totals.forEach((item) => {
+                const row = document.createElement("div");
+                row.className = "bar-row";
+                row.innerHTML = `
+                    <strong>${item.category}</strong>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width: ${(item.total / highest) * 100}%; background: ${colors[item.category]}"></div>
+                    </div>
+                    <span>${formatMoney(item.total)}</span>
+                `;
+                barList.appendChild(row);
+            });
+        }
+
+        function renderApp() {
+            renderSummary();
+            renderExpenses();
+            renderBars();
+            updatePreview();
+            saveState();
+        }
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const name = nameInput.value.trim();
+            const amount = Number(amountInput.value);
+
+            if (!name || !amount || amount <= 0) {
+                showToast("Please enter a valid name and amount.");
+                return;
+            }
+
+            expenses.unshift({
+                id: crypto.randomUUID(),
+                name,
+                amount,
+                category: categoryInput.value
+            });
+
+            nameInput.value = "";
+            amountInput.value = "";
+            categoryInput.value = "Food";
+            renderApp();
+            showToast("Expense added successfully.");
+        });
+
+        expenseList.addEventListener("click", (event) => {
+            if (!event.target.matches(".delete-btn")) return;
+            const id = event.target.dataset.id;
+            expenses = expenses.filter((expense) => expense.id !== id);
+            renderApp();
+            showToast("Expense removed.");
+        });
+
+        clearBtn.addEventListener("click", () => {
+            expenses = [];
+            renderApp();
+            showToast("All expenses cleared.");
+        });
+
+        [budgetInput, nameInput, amountInput, categoryInput].forEach((element) => {
+            element.addEventListener("input", renderApp);
+            element.addEventListener("change", renderApp);
+        });
+
+        [searchInput, filterInput].forEach((element) => {
+            element.addEventListener("input", renderExpenses);
+            element.addEventListener("change", renderExpenses);
+        });
+
+        themeToggle.addEventListener("click", () => {
+            document.body.classList.toggle("dark");
+            const isDark = document.body.classList.contains("dark");
+            themeToggle.textContent = isDark ? "Light mode" : "Dark mode";
+        });
+
+        renderApp();
+    </script>
+</body>
+</html>
